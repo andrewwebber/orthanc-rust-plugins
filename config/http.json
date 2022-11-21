@@ -1,0 +1,12 @@
+{
+  "HttpTimeout": 0,
+  "HttpsVerifyPeers": true,
+  "HttpsCACertificates" : "/etc/ssl/certs/ca-certificates.crt",
+  "HttpProxy": "",
+  "HttpPort": 8888,
+  "HttpVerbose": false,
+  "KeepAlive": true,
+  "TcpNoDelay": true,
+  "HttpRequestTimeout": 30
+}
+

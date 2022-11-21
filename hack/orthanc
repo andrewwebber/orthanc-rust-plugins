@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+CWD=$(pwd)
+hg clone https://hg.orthanc-server.com/orthanc
+(cd ./orthanc; hg up Orthanc-1.11.0)
+
+mkdir -p ./orthanc/build
+cd orthanc/build
+cmake -DSTATIC_BUILD=ON -DCMAKE_BUILD_TYPE=Release ../OrthancServer/
+make -j8 || (find -type f -name thread_data.hpp | while read patch; do sed -i '/^namespace boost/i #define PTHREAD_STACK_MIN 0' $patch; done; make -j8);
+cd $CWD
+
+hg clone https://hg.orthanc-server.com/orthanc-gdcm
+(cd ./orthanc-gdcm; hg up OrthancGdcm-1.5)
+
+mkdir -p ./orthanc-gdcm/build
+cd orthanc-gdcm/build
+cmake -DSTATIC_BUILD=ON -DUSE_SYSTEM_GDCM=ON -DUSE_LEGACY_GDCM=OFF -DCMAKE_BUILD_TYPE=Release ../
+make -j8 || (find -type f -name thread_data.hpp | while read patch; do sed -i '/^namespace boost/i #define PTHREAD_STACK_MIN 0' $patch; done; sed -i '/^#include <iostream>/i #include <limits>' ./GDCM-prefix/src/GDCM/Source/MediaStorageAndFileFormat/gdcmPhotometricInterpretation.h; make -j8)
+cd $CWD

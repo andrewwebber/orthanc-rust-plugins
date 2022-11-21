@@ -1,0 +1,7 @@
+{
+    "RemoteAccessAllowed": true,
+    "AuthenticationEnabled": true,
+    "RegisteredUsers": {
+        "admin": "admin"
+    }
+}

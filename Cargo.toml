@@ -1,0 +1,6 @@
+[workspace]
+
+members = [
+    "./plugins/s3",
+]
+

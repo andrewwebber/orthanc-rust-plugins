@@ -1,0 +1,38 @@
+[package]
+name = "s3"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib",  "rlib"]
+
+[build-dependencies]
+bindgen = "0.59.2"
+
+[dependencies]
+task-local-extensions = "0.1"
+async-trait = "0.1"
+anyhow = "1"
+lazy_static = "1.4.0"
+tokio = { version = "1.15.0", features = ["signal", "rt-multi-thread", "sync", "net"] }
+serde = { version = "1.0.135", features = ["derive"] }
+serde_json = "1.0.78"
+futures = "0.3.19"
+uuid = { version = "0.8.2", features = ["serde", "v4"] }
+chrono = { default_features = false, features = ["std"], version = "0.4.19" }
+envy = "0.4.2"
+dotenv = "0.15.0"
+tracing = "0.1.29"
+tracing-subscriber = "0.3.6"
+rusoto_core = { version = "0.47.0", default_features = false, features = ["rustls"] }
+rusoto_credential = "0.47.0"
+rusoto_s3 = { version = "0.47.0", default_features = false, features = ["rustls"] }
+thiserror = "1.0.30"
+futures-util = { version = "0.3", default-features = false, features = ["std"] }
+reqwest-retry = "0.1"
+reqwest-middleware = "0.1"
+
+[dependencies.reqwest]
+version = "0.11.9"
+default-features = false
+features = ["rustls-tls", "json", "multipart", "trust-dns"]

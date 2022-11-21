@@ -1,0 +1,6 @@
+/target
+/orthanc
+/orthanc-gdcm
+/config/OrthancStorage
+/libs
+/test-data
