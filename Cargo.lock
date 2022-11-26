@@ -959,6 +959,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ff011a302c396a5197692431fc1948019154afc178baf7d8e37367442a4601cf"
 
 [[package]]
+name = "orthanc-plugin-bindings"
+version = "0.1.0"
+dependencies = [
+ "bindgen",
+]
+
+[[package]]
 name = "overload"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1376,13 +1383,13 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-trait",
- "bindgen",
  "chrono",
  "dotenv",
  "envy",
  "futures",
  "futures-util",
  "lazy_static",
+ "orthanc-plugin-bindings",
  "reqwest",
  "reqwest-middleware",
  "reqwest-retry",

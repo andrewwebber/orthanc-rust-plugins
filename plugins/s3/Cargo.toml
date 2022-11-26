@@ -6,10 +6,8 @@ edition = "2021"
 [lib]
 crate-type = ["cdylib",  "rlib"]
 
-[build-dependencies]
-bindgen = "0.59.2"
-
 [dependencies]
+orthanc-plugin-bindings = { path="../../orthanc-plugin-bindings"}
 task-local-extensions = "0.1"
 async-trait = "0.1"
 anyhow = "1"

@@ -6,7 +6,7 @@ use rusoto_credential::StaticProvider;
 use rusoto_s3::{DeleteObjectRequest, GetObjectRequest, PutObjectRequest, S3Client, S3};
 use tracing::{debug, info, warn};
 
-use crate::{bindgen, config::Config};
+use crate::config::Config;
 
 lazy_static! {
     static ref GLOBAL_STATE: RwLock<AppState> = {
@@ -42,24 +42,26 @@ pub struct AppState {
 /// Wrapper struct for a callback function whose FFI will be generated automatically by `bindgen`.
 #[repr(C)]
 struct OnChangeParams {
-    callback: bindgen::OrthancPluginOnChangeCallback,
+    callback: orthanc_plugin_bindings::OrthancPluginOnChangeCallback,
 }
 
 #[repr(C)]
 struct OrthancPluginStorageArea2Params {
-    create: bindgen::OrthancPluginStorageCreate,
-    whole: bindgen::OrthancPluginStorageReadWhole,
-    range: bindgen::OrthancPluginStorageReadRange,
-    remove: bindgen::OrthancPluginStorageRemove,
+    create: orthanc_plugin_bindings::OrthancPluginStorageCreate,
+    whole: orthanc_plugin_bindings::OrthancPluginStorageReadWhole,
+    range: orthanc_plugin_bindings::OrthancPluginStorageReadRange,
+    remove: orthanc_plugin_bindings::OrthancPluginStorageRemove,
 }
 
-struct OrthancContext(*mut bindgen::OrthancPluginContext);
+struct OrthancContext(*mut orthanc_plugin_bindings::OrthancPluginContext);
 unsafe impl Send for OrthancContext {}
 unsafe impl Sync for OrthancContext {}
 
 #[allow(clippy::not_unsafe_ptr_arg_deref)]
 #[no_mangle]
-pub extern "C" fn OrthancPluginInitialize(context: *mut bindgen::OrthancPluginContext) -> i32 {
+pub extern "C" fn OrthancPluginInitialize(
+    context: *mut orthanc_plugin_bindings::OrthancPluginContext,
+) -> i32 {
     info!("initializing");
 
     let mut app_state = GLOBAL_STATE.try_write().expect("unable to obtain lock");
@@ -95,7 +97,7 @@ pub extern "C" fn OrthancPluginInitialize(context: *mut bindgen::OrthancPluginCo
         let invoker = (*context).InvokeService;
         invoker.unwrap()(
             context,
-            bindgen::_OrthancPluginService__OrthancPluginService_RegisterOnChangeCallback,
+            orthanc_plugin_bindings::_OrthancPluginService__OrthancPluginService_RegisterOnChangeCallback,
             params,
         );
     }
@@ -113,7 +115,7 @@ pub extern "C" fn OrthancPluginInitialize(context: *mut bindgen::OrthancPluginCo
         let invoker = (*context).InvokeService;
         invoker.unwrap()(
             context,
-            bindgen::_OrthancPluginService__OrthancPluginService_RegisterStorageArea2,
+            orthanc_plugin_bindings::_OrthancPluginService__OrthancPluginService_RegisterStorageArea2,
             params,
         );
     }
@@ -153,16 +155,16 @@ pub extern "C" fn OrthancPluginGetVersion() -> *const u8 {
 
 #[repr(C)]
 struct CreateBufferParams {
-    target: *mut bindgen::OrthancPluginMemoryBuffer64,
+    target: *mut orthanc_plugin_bindings::OrthancPluginMemoryBuffer64,
     size: usize,
 }
 
 extern "C" fn storage_read_range(
-    target: *mut bindgen::OrthancPluginMemoryBuffer64,
+    target: *mut orthanc_plugin_bindings::OrthancPluginMemoryBuffer64,
     uuid: *const ::std::os::raw::c_char,
-    plugin_type: bindgen::OrthancPluginContentType,
+    plugin_type: orthanc_plugin_bindings::OrthancPluginContentType,
     range_start: u64,
-) -> bindgen::OrthancPluginErrorCode {
+) -> orthanc_plugin_bindings::OrthancPluginErrorCode {
     info!("storage_read_whole called {}", plugin_type);
     match GLOBAL_STATE.try_read() {
         Ok(app_state) => {
@@ -203,7 +205,7 @@ extern "C" fn storage_read_range(
 
                     if let Err(e) = content {
                         warn!("{}", e);
-                        return bindgen::OrthancPluginErrorCode_OrthancPluginErrorCode_StorageAreaPlugin;
+                        return orthanc_plugin_bindings::OrthancPluginErrorCode_OrthancPluginErrorCode_StorageAreaPlugin;
                     }
 
                     let content = content.unwrap();
@@ -221,22 +223,22 @@ extern "C" fn storage_read_range(
                 }
                 Err(e) => {
                     warn!("unable to parse resource_id to Utf8-String - {}", e);
-                    bindgen::OrthancPluginErrorCode_OrthancPluginErrorCode_StorageAreaPlugin
+                    orthanc_plugin_bindings::OrthancPluginErrorCode_OrthancPluginErrorCode_StorageAreaPlugin
                 }
             }
         }
         Err(e) => {
             warn!("unable to get application state - {}", e);
-            bindgen::OrthancPluginErrorCode_OrthancPluginErrorCode_StorageAreaPlugin
+            orthanc_plugin_bindings::OrthancPluginErrorCode_OrthancPluginErrorCode_StorageAreaPlugin
         }
     }
 }
 
 extern "C" fn storage_read_whole(
-    target: *mut bindgen::OrthancPluginMemoryBuffer64,
+    target: *mut orthanc_plugin_bindings::OrthancPluginMemoryBuffer64,
     uuid: *const ::std::os::raw::c_char,
-    plugin_type: bindgen::OrthancPluginContentType,
-) -> bindgen::OrthancPluginErrorCode {
+    plugin_type: orthanc_plugin_bindings::OrthancPluginContentType,
+) -> orthanc_plugin_bindings::OrthancPluginErrorCode {
     info!("storage_read_whole called {}", plugin_type);
     match GLOBAL_STATE.try_read() {
         Ok(app_state) => {
@@ -270,7 +272,7 @@ extern "C" fn storage_read_whole(
 
                     if let Err(e) = content {
                         warn!("{}", e);
-                        return bindgen::OrthancPluginErrorCode_OrthancPluginErrorCode_StorageAreaPlugin;
+                        return orthanc_plugin_bindings::OrthancPluginErrorCode_OrthancPluginErrorCode_StorageAreaPlugin;
                     }
 
                     let content = content.unwrap();
@@ -286,7 +288,7 @@ extern "C" fn storage_read_whole(
                         let invoker = (*context).InvokeService;
                         invoker.unwrap()(
                             context,
-                            bindgen::_OrthancPluginService__OrthancPluginService_CreateMemoryBuffer64,
+                            orthanc_plugin_bindings::_OrthancPluginService__OrthancPluginService_CreateMemoryBuffer64,
                             params,
                         );
                         let _ = Box::from_raw(params as *mut std::ffi::c_void);
@@ -305,21 +307,21 @@ extern "C" fn storage_read_whole(
                 }
                 Err(e) => {
                     warn!("unable to parse resource_id to Utf8-String - {}", e);
-                    bindgen::OrthancPluginErrorCode_OrthancPluginErrorCode_StorageAreaPlugin
+                    orthanc_plugin_bindings::OrthancPluginErrorCode_OrthancPluginErrorCode_StorageAreaPlugin
                 }
             }
         }
         Err(e) => {
             warn!("unable to get application state - {}", e);
-            bindgen::OrthancPluginErrorCode_OrthancPluginErrorCode_StorageAreaPlugin
+            orthanc_plugin_bindings::OrthancPluginErrorCode_OrthancPluginErrorCode_StorageAreaPlugin
         }
     }
 }
 
 extern "C" fn storage_remove(
     uuid: *const ::std::os::raw::c_char,
-    plugin_type: bindgen::OrthancPluginContentType,
-) -> bindgen::OrthancPluginErrorCode {
+    plugin_type: orthanc_plugin_bindings::OrthancPluginContentType,
+) -> orthanc_plugin_bindings::OrthancPluginErrorCode {
     info!("storage_remove called {}", plugin_type);
 
     match GLOBAL_STATE.try_read() {
@@ -355,13 +357,13 @@ extern "C" fn storage_remove(
                 }
                 Err(e) => {
                     warn!("unable to parse resource_id to Utf8-String - {}", e);
-                    bindgen::OrthancPluginErrorCode_OrthancPluginErrorCode_StorageAreaPlugin
+                    orthanc_plugin_bindings::OrthancPluginErrorCode_OrthancPluginErrorCode_StorageAreaPlugin
                 }
             }
         }
         Err(e) => {
             warn!("unable to get application state - {}", e);
-            bindgen::OrthancPluginErrorCode_OrthancPluginErrorCode_StorageAreaPlugin
+            orthanc_plugin_bindings::OrthancPluginErrorCode_OrthancPluginErrorCode_StorageAreaPlugin
         }
     }
 }
@@ -370,8 +372,8 @@ extern "C" fn storage_create(
     uuid: *const ::std::os::raw::c_char,
     content: *const ::std::os::raw::c_void,
     size: i64,
-    plugin_type: bindgen::OrthancPluginContentType,
-) -> bindgen::OrthancPluginErrorCode {
+    plugin_type: orthanc_plugin_bindings::OrthancPluginContentType,
+) -> orthanc_plugin_bindings::OrthancPluginErrorCode {
     info!("storage_create called {}", plugin_type);
     use std::slice::*;
 
@@ -411,22 +413,22 @@ extern "C" fn storage_create(
                 }
                 Err(e) => {
                     warn!("unable to parse resource_id to Utf8-String - {}", e);
-                    bindgen::OrthancPluginErrorCode_OrthancPluginErrorCode_StorageAreaPlugin
+                    orthanc_plugin_bindings::OrthancPluginErrorCode_OrthancPluginErrorCode_StorageAreaPlugin
                 }
             }
         }
         Err(e) => {
             warn!("unable to get application state - {}", e);
-            bindgen::OrthancPluginErrorCode_OrthancPluginErrorCode_StorageAreaPlugin
+            orthanc_plugin_bindings::OrthancPluginErrorCode_OrthancPluginErrorCode_StorageAreaPlugin
         }
     }
 }
 
 extern "C" fn on_change(
-    change_type: bindgen::OrthancPluginChangeType,
-    resource_type: bindgen::OrthancPluginResourceType,
+    change_type: orthanc_plugin_bindings::OrthancPluginChangeType,
+    resource_type: orthanc_plugin_bindings::OrthancPluginResourceType,
     resource_id: *const ::std::os::raw::c_char,
-) -> bindgen::OrthancPluginErrorCode {
+) -> orthanc_plugin_bindings::OrthancPluginErrorCode {
     let resource_id = if resource_id.is_null() {
         None
     } else {
@@ -444,7 +446,7 @@ extern "C" fn on_change(
         change_type, resource_type, resource_id
     );
 
-    bindgen::OrthancPluginErrorCode_OrthancPluginErrorCode_Success
+    orthanc_plugin_bindings::OrthancPluginErrorCode_OrthancPluginErrorCode_Success
 }
 
 impl TryFrom<&Config> for rusoto_s3::S3Client {

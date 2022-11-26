@@ -1,6 +1,7 @@
 [workspace]
 
 members = [
-    "./plugins/s3",
+    "./orthanc-plugin-bindings",
+    "./plugins/s3"
 ]
 

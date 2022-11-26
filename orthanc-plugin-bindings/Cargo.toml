@@ -1,0 +1,17 @@
+[package]
+name = "orthanc-plugin-bindings"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "Orthanc Server Bindings"
+homepage = "https://github.com/andrewwebber/orthanc-rust-plugins"
+repository = "https://github.com/andrewwebber/orthanc-rust-plugins"
+readme = "README.md"
+keywords = ["medical", "orthanc"]
+categories = ["api-bindings"]
+
+
+[build-dependencies]
+bindgen = "0.59.2"
+
+[dependencies]
