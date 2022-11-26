@@ -24,7 +24,7 @@ audit:
 	mkdir -p ./target/audit || true
 	cargo audit --ignore RUSTSEC-2020-0159 --ignore RUSTSEC-2020-0071
 
-build: audit
+build: audit orthanc-plugin-bindings/src/bindings.rs
 	cargo clippy --tests -- -Dwarnings
 
 test:
@@ -45,3 +45,6 @@ docker-image: libs
 
 docker-push: docker-image
 	docker push ${OCI_REGISTRY}/${PROJECT_NAME}:${COMMIT_HASH}
+
+orthanc-plugin-bindings/src/bindings.rs:
+	bindgen ./orthanc/OrthancServer/Plugins/Include/orthanc/OrthancCPlugin.h -o ./orthanc-plugin-bindings/src/bindings.rs --allowlist-function="Orthanc.*" --allowlist-type="Orthanc.*" --allowlist-var="Orthanc.*" --no-layout-tests

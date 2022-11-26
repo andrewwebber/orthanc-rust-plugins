@@ -10,8 +10,4 @@ readme = "README.md"
 keywords = ["medical", "orthanc"]
 categories = ["api-bindings"]
 
-
-[build-dependencies]
-bindgen = "0.59.2"
-
 [dependencies]
